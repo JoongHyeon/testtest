@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="memberMapper">
+	<select id="memberLogin" resultMap="memberResultSet">
+		select *
+		from member
+		where id=#{id}
+			  and m_status='Y'
+	</select>
+	<resultMap type="Member" id="memberResultSet">
+		<id column="ID" property="id"/>
+		<result column="PWD" property="pwd"/>
+		<result column="NAME" property="name"/>
+		<result column="EMAIL" property="email"/>
+		<result column="GENDER" property="gender"/>
+		<result column="AGE" property="age"/>
+		<result column="PHONE" property="phone"/>
+		<result column="ADDRESS" property="address"/>
+		<result column="ENROLL_DATE" property="enrollDate"/>
+		<result column="UPDATE_DATE" property="updateDate"/>
+		<result column="M_STATUS" property="mStatus"/>
+	</resultMap>
+	
+	<insert id="insertMember">
+   		insert into member
+   		values( #{id}, #{pwd}, #{name}, #{email}, #{gender}, #{age}, #{phone}, #{address}, sysdate, sysdate, default)
+   </insert>
+   
+   <update id="updateMember">
+   		update member
+   		set name=#{name}, email=#{email}, age=#{age}, phone=#{phone}, gender=#{gender}, address=#{address}, update_date=sysdate
+   		where id=#{id}	
+   </update>
+   
+   <update id="updatePwd">
+	   	update member
+	   	set pwd=#{newPwd}
+	   	where id=#{id}
+   </update>
+   
+    <update id="deleteMember">
+   		update member
+   		set m_status = 'N'
+   		where id=#{id}	
+   </update>
+   
+   <select id="checkIdDup" resultType="_int">
+   		select count(*)
+		from member
+		where id=#{id}
+   </select>
+</mapper>

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- namespace : 연결하고 싶은 mapper를 구분하는 속성 -->
+<!-- mybatis-config.xml에서 mapper 등록 -->
+<mapper namespace="boardMapper">
+   <select id="getListCount" resultType="_int">
+      select count(*)
+      from board
+      where b_status = 'Y'
+   </select>
+   
+   <select id="selectList" resultMap="boardResultSet">
+      select * 
+      from board
+      where b_status = 'Y'
+      order by bid desc
+   </select>
+   
+   <resultMap type="Board" id="boardResultSet">
+      <id property="bId" column="BID" />         
+      <result property="bTitle" column="BTITLE" />
+      <result property="bWriter" column="BWRITER" />
+      <result property="bContent" column="BCONTENT" />
+      <result property="originalFileName" column="ORIGINAL_FILENAME" />
+      <result property="renameFileName" column="RENAME_FILENAME" />
+      <result property="bCount" column="BCOUNT" />
+      <result property="bCreateDate" column="B_CREATE_DATE" />
+      <result property="bModifyDate" column="B_MODIFY_DATE" />
+      <result property="bStatus" column="B_STATUS" />
+   </resultMap>
+   
+   <insert id="insertBoard">
+   		insert into board
+   		values(seq_bid.nextval, #{bTitle}, #{bWriter}, #{bContent}, #{originalFileName}, #{renameFileName}, default, sysdate, sysdate, default)
+   </insert>
+   
+   <update id="addReadCount">
+   		update board
+   		set bcount = bcount + 1
+   		where bid = #{bId}
+   </update>
+   
+   <select id="selectBoard" resultMap="boardResultSet">
+   	select *
+   	from board
+   	where bId=#{bId} and b_status='Y'
+   </select>
+   
+   <update id="updateBoard">
+   		update board
+   		set BTITLE=#{bTitle}, BCONTENT=#{bContent}, ORIGINAL_FILENAME=#{originalFileName},
+   			RENAME_FILENAME=#{renameFileName}, B_MODIFY_DATE=sysdate
+   		where bid = #{bId}
+   </update>
+   
+   <update id="deleteBoard">
+   		update board
+   		set B_STATUS = 'N'
+   		where bid = #{bId}
+   </update>
+   
+    <insert id="addReply">
+   		insert into reply
+   		values(seq_rid.nextval, #{rContent}, #{refBid}, #{rWriter}, sysdate, sysdate, default)
+   </insert>
+   
+   <select id="selectReplyList" resultMap="replyResultSet">
+	   	select *
+	   	from reply
+	   	where ref_bid = #{bId}
+	   	order by rId desc
+   </select>
+   
+   <resultMap type="Reply" id="replyResultSet">
+   		<id column="RID" property="rId"/>
+   		<result column="RCONTENT" property="rContent"/>
+   		<result column="REF_BID" property="refBid"/>
+   		<result column="RWRITER" property="rWriter"/>
+   		<result column="R_CREATE_DATE" property="rCreateDate"/>
+   		<result column="R_MODIFY_DATE" property="rModifyDate"/>
+   		<result column="R_STATUS" property="rStatus"/>
+   </resultMap>
+   
+  <select id="selectTopList" resultMap="boardResultSet">
+	  	<![CDATA[
+		   	SELECT *
+			FROM(SELECT * 
+			    FROM BOARD 
+			    WHERE B_STATUS = 'Y' 
+			    ORDER BY BCOUNT DESC)
+			WHERE ROWNUM <= 5
+		]]>
+   </select>
+   
+   
+   
+  </mapper> 
+  
