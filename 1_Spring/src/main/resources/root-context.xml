@@ -5,13 +5,28 @@
 	
 	<!-- Root Context: defines shared resources visible to all other web components -->
 	<!-- DataSource등록 -->	
-	<bean class="org.apache.commons.dbcp.BasicDataSource" id="dataSource" destroy-method="close">
+<!-- 	<bean class="org.apache.commons.dbcp.BasicDataSource" id="dataSource" destroy-method="close"> -->
+<!-- 		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/> -->
+<!-- 		<property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/> -->
+<!-- 		<property name="username" value="Spring"/> -->
+<!-- 		<property name="password" value="Spring"/> -->
+<!-- 	</bean> -->
+	<bean class="org.apache.commons.dbcp.BasicDataSource" id="realDataSource" destroy-method="close">
 		<property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
 		<property name="url" value="jdbc:oracle:thin:@localhost:1521:xe"/>
 		<property name="username" value="Spring"/>
 		<property name="password" value="Spring"/>
 	</bean>
+	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="realDataSource"/>
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE"/>
+				<property name="sqlPrefix" value="[SQL]"></property>
+			</bean>
+		</property>
 	
+	</bean>
 	<!-- sqlSession 빈 등록 -->
 	<bean id = "sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="configLocation" value="classpath:mybatis-config.xml"/>

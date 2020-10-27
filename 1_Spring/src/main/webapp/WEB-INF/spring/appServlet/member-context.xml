@@ -17,5 +17,18 @@
    </bean>
    
    <context:component-scan base-package="com.kh.spring" />
-
+	
+	
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean id="testInterceptor" class="com.kh.spring.common.interceptor.TestInterceptor"/>
+		</mvc:interceptor>
+		
+		<mvc:interceptor>
+			<mvc:mapping path="/login.me"/>
+			<bean id="MemberInerceptor" class="com.kh.spring.common.interceptor.MemberInterceptor"/>
+		</mvc:interceptor>
+		
+	</mvc:interceptors>
 </beans>

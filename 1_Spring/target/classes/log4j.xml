@@ -3,17 +3,96 @@
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
 
 	<!-- Appenders -->
+	<!-- 
+		전달된 로그를 어디에 출력할지 결정(콘소르 파일, DB) 
+		ConsoleAppender 		로그를 콘솔에 출력하기 위한 Appender
+		JDBCAppender			로그를 DB에 출력하기 위한 Appender
+		FileAppender			로그를 파일에 출력하기 위한 Appender
+		파일에 둘경우 오랜기간 둘경우 관리하기가 어렵다는 단점이 있음
+		RollingFileAppender 	FileAppender를 보완한 개념
+								일정 조건 후 기존 파일을 백업 파일로 바꾸고 다시 처음부터 시작(ex. DailyRollingFileAppender)
+								
+	-->
+	<!-- 
+		%p 		: debug, info, warn, error, fatal 등의 priority 출력
+		%m 		: 로그 내용 출력
+		%d 		: 로그 이벤트가 발생한 시간 출력(프로그램 속도를 느리게 함)
+		%t 		: 로그 이벤트가 발생한 스레드 이름 출력
+		%% 		: %출력
+		%n 		: 개행문자 출력
+		%c 		: package(카테고리) 출력
+		%c{n} 	: n(숫자)만큼의 package를 가장 하단부터 역으로 출력
+					카테고리가 a,b,c로 되었다면  %c{2}는 b,c로 출력
+		%C		: 호출자의 클래스 명 출력
+					클래스 구조가 a,b,c처럼 되어있다면 %C{2}는 b,c로 출력
+		%F		: 로깅이 발생한 프로그램 파일 명 출력
+		%l		: 로깅이 발생한 caller의 정부 출력
+		%L		: 로깅이 발생한 caller의 라인 수 출력
+		%M		: 로깅이 발생한 method이름 출력
+		%r		: 애프리케이션 시작 이후부터 로깅이 발생한 시점의 시간(milliseconds) 출력
+				
+	 -->
 	<appender name="console" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%-5p: %c - %m%n" />
+<!-- 			<param name="ConversionPattern" value="%-5p: %c - %m%n" /> -->
+			<param name="ConversionPattern" value="[%t]%5p : %c - %m%n" />
 		</layout>
 	</appender>
 	
+	<appender name="memberConsole" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p : %c{1}.%M{%L} - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="myConsole" class="org.apache.log4j.ConsoleAppender">
+		<param name="Target" value="System.out"/>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p : %c{1}.%M{%L} - %m%n" />
+		</layout>
+	</appender>
+	
+	<appender name="myDailyRollingFile" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="/Logs/member/login.log"/>
+<!-- 		<param name="File" value="D:/Logs/member/login.log"/> -->
+		<param name="Append" values="true"/>
+		
+		<param name="encoding" value="UTF-8"/>
+		
+		<param name="DatePattern" value=".yyyyMMdd"/>
+		
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yy-MM-dd HH:mm:ss} [%p] %c{1}.%M{%L} - %m%n"/>
+		</layout>
+	</appender>
+	
+	<appender name="sqlLogger" class="org.apache.log4j.ConsoleAppender">
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%-5p: %m%n"/>
+		</layout>
+	</appender>
 	<!-- Application Loggers -->
-	<logger name="com.kh.spring">
-		<level value="info" />
+	<!-- 오타 주의!!!!!! -->
+	<!-- 
+		debug < info < warn < error < fatal
+			설정한 level 속성 값 이상만 화면에 보임
+			(ex. info로 설정하면 debug로 설정한 log는 보이지 않음)
+			
+			fatal 아주 심각한 에러 발생
+			error 어떤 요청 처리 중 문제 발생
+			warn  프로그램 실행에는 문제가 없지만 향후 시스템 에러의 원인이 될 수 있는 경고성 메세지
+			info  상태 변경과 같은 정보성 메세지
+			debug 개발 시 디버그 용도로 상요하는 메세지
+			trace 디버그 레벨이 너무 광범위한 것으 뢔결하기 위해 좀 더 상세한 이벤트 나타냄(경로추적)
+	 -->
+	<logger name="com.kh.spring" additivity="false">
+		<level value="debug" />
+		<appender-ref ref="console"/>
 	</logger>
+	
+	
 	
 	<!-- 3rdparty Loggers -->
 	<logger name="org.springframework.core">
@@ -32,7 +111,33 @@
 		<level value="info" />
 	</logger>
 
+	<logger name="com.kh.spring.member.controller.MemberController" additivity="false">
+		<level value="debug" />
+		<appender-ref ref="memberConsole"/>
+<!-- 		<appender-ref ref="myDailyRollingFile" /> -->
+	</logger>
+
+	<logger name="com.kh.spring.common.interceptor.TestInterceptor">
+		<level value="debug" />
+<!-- 		<appender-ref ref="myConsole"/> -->
+	</logger>
+	
+	<logger name="com.kh.spring.common.interceptor.MemberInterceptor" additivity="false">
+		<level value="debug" />
+		<appender-ref ref="myDailyRollingFile" />
+	</logger>
+	
+	<logger name="jdbc.sqlonly" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="sqlLogger"/>
+	</logger>
+	
+	<logger name="jdbc.resultsettable" additivity="false">
+		<level value="info"/>
+		<appender-ref ref="sqlLogger"/>
+	</logger>
 	<!-- Root Logger -->
+	<!-- 모든 자식 logger들의 출력이 rootLogger를 통해 이루어짐 -->
 	<root>
 		<priority value="warn" />
 		<appender-ref ref="console" />

@@ -17,4 +17,18 @@
 	</bean>
 	
 	<context:component-scan base-package="com.kh.spring"/>
+	
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<bean id="testInterceptor" class="com.kh.spring.common.interceptor.TestInterceptor"/>
+		</mvc:interceptor>
+		
+		<mvc:interceptor>
+			<mvc:mapping path="/blist.bo"/>
+			<bean id="boardEnterInterceptor" class="com.kh.spring.common.interceptor.BoardEnterInterceptor"/>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	
+	
 </beans>

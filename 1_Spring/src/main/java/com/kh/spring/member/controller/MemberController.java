@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.kh.spring.log.Log4jTest;
 import com.kh.spring.member.model.exception.MemberException;
 import com.kh.spring.member.model.vo.Member;
 import com.kh.spring.member.service.MemberService;
@@ -27,6 +30,8 @@ import com.kh.spring.member.service.MemberServiceImpl;
 @SessionAttributes("loginUser")
 @Controller  //@Component의 확장판(@Component + Controller의 성격 추가)
 public class MemberController {
+	
+	private Logger logger = LoggerFactory.getLogger(MemberController.class);
 	
 	@Autowired //DI(의존성 주입)
 	private MemberService mService;
@@ -167,6 +172,11 @@ public class MemberController {
 	
 	@RequestMapping("enrollView.me")
 	public String enrollView() {
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug("회원등록페이지");
+		}
+		
 		return "memberJoin";
 	}
 	
